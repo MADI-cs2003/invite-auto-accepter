@@ -50,7 +50,7 @@ accepted_count = 0
 skipped_count = 0
 
 with open(log_file, "a") as f:
-    f.write(f"\nRun at {datetime.datetime.utcnow()} UTC\n")
+    f.write(f"\nRun at {datetime.utcnow()} UTC\n")
 
     for invite in all_invites:
         repo_name = invite["repository"]["full_name"]
