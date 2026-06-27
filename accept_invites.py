@@ -9,27 +9,40 @@ headers = {
     "Accept": "application/vnd.github+json"
 }
 
-# Format: YYYY-MM-DD
-CUTOFF_DATE_STR = "2026-05-15"
+# 🔧 Cutoff date (UTC)
+CUTOFF_DATE_STR = "2026-06-20"
 CUTOFF_DATE = datetime.strptime(CUTOFF_DATE_STR, "%Y-%m-%d").replace(tzinfo=timezone.utc)
 
-# Fetch pending invitations
-resp = requests.get(
-    "https://api.github.com/user/repository_invitations",
-    headers=headers
-)
+BASE_URL = "https://api.github.com/user/repository_invitations"
 
-if resp.status_code != 200:
-    print("Failed to fetch invitations:", resp.text)
-    exit(1)
+all_invites = []
+page = 1
+per_page = 100
 
-invites = resp.json()
+print("Fetching all invitations with pagination...")
+
+while True:
+    url = f"{BASE_URL}?per_page={per_page}&page={page}"
+    resp = requests.get(url, headers=headers)
+
+    if resp.status_code != 200:
+        print("Failed to fetch invitations:", resp.text)
+        exit(1)
+
+    invites = resp.json()
+
+    if not invites:
+        break
+
+    print(f"Fetched page {page} with {len(invites)} invites")
+    all_invites.extend(invites)
+    page += 1
+
+print(f"\nTotal invitations fetched: {len(all_invites)}")
 
 if not invites:
     print("No pending invitations.")
     exit(0)
-
-print(f"Total invitations fetched: {len(invites)}")
 
 accepted_count = 0
 skipped_count = 0
