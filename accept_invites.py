@@ -40,14 +40,14 @@ while True:
 
 print(f"\nTotal invitations fetched: {len(all_invites)}")
 
-if not invites:
+if not all_invites:
     print("No pending invitations.")
     exit(0)
 
 accepted_count = 0
 skipped_count = 0
 
-for invite in invites:
+for invite in all_invites:
     repo_name = invite["repository"]["full_name"]
     invitation_id = invite["id"]
     created_at_str = invite["created_at"]
