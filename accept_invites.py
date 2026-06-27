@@ -72,12 +72,12 @@ with open(log_file, "a") as f:
     
         if r.status_code == 204:
             print(f"Accepted: {repo_name} | Created at: {created_at_str}")
-            f.write(f"Accepted: {repo_name} | Created at: {created_at_str}")
+            f.write(f"\nAccepted: {repo_name} | Created at: {created_at_str}")
             accepted_count += 1
         else:
             print(f"Failed: {repo_name} → {r.text}")
             f.write(f"Failed: {repo_name} → {r.text}")
     
     f.write("\nSummary:")
-    f.write(f"Accepted: {accepted_count}")
-    f.write(f"Skipped (old): {skipped_count}")
+    f.write(f"\nAccepted: {accepted_count}")
+    f.write(f"\nSkipped (old): {skipped_count}")
