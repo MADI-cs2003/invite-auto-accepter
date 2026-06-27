@@ -10,7 +10,7 @@ headers = {
 }
 
 # 🔧 Cutoff date (UTC)
-CUTOFF_DATE_STR = "2026-06-20"
+CUTOFF_DATE_STR = "2026-05-20"
 CUTOFF_DATE = datetime.strptime(CUTOFF_DATE_STR, "%Y-%m-%d").replace(tzinfo=timezone.utc)
 
 BASE_URL = "https://api.github.com/user/repository_invitations"
