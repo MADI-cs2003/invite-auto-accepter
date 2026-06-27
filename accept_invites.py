@@ -21,6 +21,8 @@ per_page = 100
 
 print("Fetching all invitations with pagination...")
 
+log_file = "accepted_log.txt"
+
 while True:
     url = f"{BASE_URL}?per_page={per_page}&page={page}"
     resp = requests.get(url, headers=headers)
@@ -47,30 +49,35 @@ if not all_invites:
 accepted_count = 0
 skipped_count = 0
 
-for invite in all_invites:
-    repo_name = invite["repository"]["full_name"]
-    invitation_id = invite["id"]
-    created_at_str = invite["created_at"]
+with open(log_file, "a") as f:
+    f.write(f"\nRun at {datetime.datetime.utcnow()} UTC\n")
 
-    # Convert API timestamp → datetime
-    created_at = datetime.strptime(created_at_str, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
-
-    # 🔍 Apply filter
-    if created_at < CUTOFF_DATE:
-        print(f"Skipped (old): {repo_name} | Created at: {created_at_str}")
-        skipped_count += 1
-        continue
-
-    # Accept invitation
-    accept_url = f"https://api.github.com/user/repository_invitations/{invitation_id}"
-    r = requests.patch(accept_url, headers=headers)
-
-    if r.status_code == 204:
-        print(f"Accepted: {repo_name} | Created at: {created_at_str}")
-        accepted_count += 1
-    else:
-        print(f"Failed: {repo_name} → {r.text}")
-
-print("\nSummary:")
-print(f"Accepted: {accepted_count}")
-print(f"Skipped (old): {skipped_count}")
+    for invite in all_invites:
+        repo_name = invite["repository"]["full_name"]
+        invitation_id = invite["id"]
+        created_at_str = invite["created_at"]
+    
+        # Convert API timestamp → datetime
+        created_at = datetime.strptime(created_at_str, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+    
+        # 🔍 Apply filter
+        if created_at < CUTOFF_DATE:
+            f.write(f"Skipped (old): {repo_name} | Created at: {created_at_str}")
+            skipped_count += 1
+            continue
+    
+        # Accept invitation
+        accept_url = f"https://api.github.com/user/repository_invitations/{invitation_id}"
+        r = requests.patch(accept_url, headers=headers)
+    
+        if r.status_code == 204:
+            print(f"Accepted: {repo_name} | Created at: {created_at_str}")
+            f.write(f"Accepted: {repo_name} | Created at: {created_at_str}")
+            accepted_count += 1
+        else:
+            print(f"Failed: {repo_name} → {r.text}")
+            f.write(f"Failed: {repo_name} → {r.text}")
+    
+    f.write("\nSummary:")
+    f.write(f"Accepted: {accepted_count}")
+    f.write(f"Skipped (old): {skipped_count}")
